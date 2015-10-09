@@ -8,7 +8,7 @@
 #include "Gamma/Noise.h"
 #include "Gamma/Oscillator.h"
 
-#include "EqualPowerPanner.h"   // See this for implementation details
+#include "StereoPanner.h"   // See this for implementation details
 
 using namespace gam;
 using namespace std;
@@ -20,17 +20,20 @@ int channels 	= 2;
 LFO<> lfo(0.5);   // 0.5Hz triangle wave
 Sine<> sine(440);   // 440H sine wave
 
-EqualPowerPanner eqPow_panner;
+NoiseWhite<> noiseL;
+NoiseWhite<> noiseR;
+
+StereoPanner stereo_panner;
 
 void audioCallBack(AudioIOData& io)
 {
 
     while(io())
     {
-        float sample = sine();
+        float sample[2] = {noiseL(), noiseR()};
 
-        eqPow_panner.pos(lfo.tri());
-        eqPow_panner.pan(sample, io);
+        stereo_panner.pos(lfo.tri());
+        stereo_panner.pan(sample, io);
     }
 }
 

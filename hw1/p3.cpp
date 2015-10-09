@@ -28,7 +28,6 @@ void audioCallBack(AudioIOData& io)
     while(io())
     {
         float sample = sine();
-        float out[2];
 
         lin_panner.pos(lfo.tri());
         lin_panner.pan(sample, io);

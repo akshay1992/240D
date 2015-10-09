@@ -15,12 +15,13 @@ public:
     void pos(float position)
     {
         pan_pos = position;
-        calculate_gains();
     }
 
     //! Pans a mono sample to two channels within io.
     void pan(float input, gam::AudioIOData &io)
     {
+        calculate_gains();
+     
         io.out(0) = input * gainL;
         io.out(1) = input * gainR;
     }
