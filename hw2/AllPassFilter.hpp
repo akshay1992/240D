@@ -2,34 +2,45 @@
 #define ALLPASS_FILTER
 
 #include "Gamma/Containers.h"
+#include "Gamma/Delay.h"
+
+#define SCALE 0.5
+
+// All pass filter implementation
+// NOTE: Assumes a 44100 sample rate
 
 class AllPassFilter
 {
 public:
 
-	AllPassFilter(int d, float k) : d(d), k(k) {}
+	AllPassFilter(float d_ms, float k) : d_ms(d_ms), k(k) {}
 
-	float operator()(float input_sample)
+	AllPassFilter() {}			// Use ONLY for composite filters
+
+	virtual float operator()(float input_sample)
 	{
 		return tick(input_sample);
 	}
 
-	float tick(float input_sample)
+	virtual float tick(float input_sample)
 	{
-		static gam::DelayN<float> D(d, 0);
+		static gam::Delay<float> delay(d_ms / 1000.0, 0);
 
 		static float output_sample = 0;
 
-		// Difference equation implementation
-		output_sample = k * input_sample + D(input_sample - k*output_sample);
+		output_sample = k * input_sample + delay(input_sample - k*output_sample);
+
+		output_sample *= SCALE;
 
 		return output_sample;
 	}
 	
 private:
-	int d; 	// Delay (in samples)
+	float d_ms; // Delay in ms
 	float k;		// Feedback and feedforward gain
-
 };
+
+#include "SeriesAllPassFilter.hpp"
+#include "NestedAllPassFilter.hpp"
 
 #endif

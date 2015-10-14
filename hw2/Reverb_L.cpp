@@ -1,16 +1,14 @@
- #include <stdio.h>
+#include <stdio.h>
 #include "Gamma/AudioIO.h" 
 #include "Gamma/Domain.h" 
 #include "Gamma/Oscillator.h" 
 #include "Gamma/Envelope.h" 
 #include "Gamma/Noise.h"
 #include "Gamma/Filter.h"
-#include "Gamma/Delay.h"
 
 #include "AllPassFilter.hpp"
 
 using namespace gam;
-using namespace std;
 
 int frameCount = 512; 
 int samplingRate = 44100; 
@@ -22,7 +20,8 @@ float output = 0.0;
 float dryWet = 0.5; // 0.0 for dry signal and 1.0 for wet signal 
 float level = 0.1;  // Audio output level
 
-float decayTime = 0.8; // Decay time of the reverb (Play with this)
+float decayTime = 0.5; // Decay time of the reverb (Play with this)
+
 
 NoiseWhite<> white; // White Noise
 AD<> env;			// Attack/Decay envelope
@@ -30,17 +29,23 @@ Accum<> tmr;		// Timer to reset AD envelope
 
 //Declare your delays, lowpass and allpass filters here 
 //
-
 // Tap1
-Delay<float> delay24(24.0/1000.0);
-AllPassFilter apf1(22.0, 0.4);
-AllPassFilter apf2(8.3, 0.6);
-SeriesAllPassFilter apf_inner12(apf1, apf2);
-NestedAllPassFilter apf_outer12(35, 0.3);
+AllPassFilter apf1(8, 0.3);
+AllPassFilter apf2(12, 0.3);
+Delay<float> delay8(8.0/1000.0);
 
 // Tap2
-AllPassFilter apf3_inner(30, 0.4);
-NestedAllPassFilter apf4_outer(66, 0.1);
+Delay<float> delay17(17.0/1000.0);
+AllPassFilter apf3_inner(62, 0.25);
+NestedAllPassFilter apf3_outer(87, 0.5);
+Delay<float> delay31(31.0/1000.0);
+
+// Tap3
+Delay<float> delay3(3.0/1000.0);
+AllPassFilter apf4(76, 0.25);
+AllPassFilter apf5(30, 0.35);
+SeriesAllPassFilter apf45_inner(apf4, apf5);
+NestedAllPassFilter apf45_outer(120, 0.5);
 
 // Feedback
 Biquad<> lpf;
@@ -51,19 +56,19 @@ void roomReverb(float in, float& out, float decayTime)
 	
 	// Reverb implementation goes here 
 	//
-	static float feedback = 0;
+	static float feedback =0;
+	float input = feedback + in;
+	input *= SCALE;
 
-	float input = (in + feedback);
+	float tap1 = delay8(apf2(apf1(input)));
 
-	input *= POOPY;
 
-	float tap1 = apf_outer12( delay24(input), apf_inner12);
+	float tap2 = delay31(apf3_outer(delay17(tap1), apf3_inner));
 
-	float tap2 = apf4_outer( tap1, apf3_inner);
+	float tap3 = apf45_outer(delay3(tap2), apf45_inner);
 
-	out = 0.5 * tap1 + 0.5 * tap2;
-	
-	feedback = lpf(tap2) * gain; 
+	out = 0.34*tap1 + 0.14*tap2 + 0.14*tap3;
+	feedback = lpf(tap3) * gain;
 }
 
 // DO NOT MODIFY THE AUDIO CALLBACK FUNCTION 
@@ -80,7 +85,7 @@ void audioCallBack(AudioIOData& io)
 		{
 			io.out(i) = ( (1.0 - dryWet) * input + dryWet * output ) * level; 
 		}
-	}
+	} 
 }
 
 int main() 
@@ -93,8 +98,8 @@ int main()
 	// Delays, lowpass, and allpass filters setup code goes here 
 	//
 	lpf.type(LOW_PASS);
-	lpf.freq(4200);
-	
+	lpf.freq(2600);
+
 	AudioIO audioIO(frameCount, samplingRate, audioCallBack, NULL, channelsOut, channelsIn);
 	Sync::master().spu(audioIO.framesPerSecond()); 
 	audioIO.start();
