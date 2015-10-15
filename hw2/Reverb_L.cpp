@@ -32,16 +32,16 @@ Accum<> tmr;		// Timer to reset AD envelope
 // Tap1
 AllPassFilter apf1(8, 0.3);
 AllPassFilter apf2(12, 0.3);
-Delay<float> delay8(8.0/1000.0);
+Delay<> delay8(8.0/1000.0);
 
 // Tap2
-Delay<float> delay17(17.0/1000.0);
+Delay<> delay17(17.0/1000.0);
 AllPassFilter apf3_inner(62, 0.25);
 NestedAllPassFilter apf3_outer(87, 0.5);
-Delay<float> delay31(31.0/1000.0);
+Delay<> delay31(31.0/1000.0);
 
 // Tap3
-Delay<float> delay3(3.0/1000.0);
+Delay<> delay3(3.0/1000.0);
 AllPassFilter apf4(76, 0.25);
 AllPassFilter apf5(30, 0.35);
 SeriesAllPassFilter apf45_inner(apf4, apf5);
@@ -58,16 +58,15 @@ void roomReverb(float in, float& out, float decayTime)
 	//
 	static float feedback =0;
 	float input = feedback + in;
-	input *= SCALE;
 
 	float tap1 = delay8(apf2(apf1(input)));
-
 
 	float tap2 = delay31(apf3_outer(delay17(tap1), apf3_inner));
 
 	float tap3 = apf45_outer(delay3(tap2), apf45_inner);
 
 	out = 0.34*tap1 + 0.14*tap2 + 0.14*tap3;
+
 	feedback = lpf(tap3) * gain;
 }
 

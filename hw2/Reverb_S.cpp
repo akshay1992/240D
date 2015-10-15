@@ -22,7 +22,7 @@ float output = 0.0;
 float dryWet = 0.5; // 0.0 for dry signal and 1.0 for wet signal 
 float level = 0.1;  // Audio output level
 
-float decayTime = 0.8; // Decay time of the reverb (Play with this)
+float decayTime = 0.5; // Decay time of the reverb (Play with this)
 
 NoiseWhite<> white; // White Noise
 AD<> env;			// Attack/Decay envelope
@@ -32,7 +32,7 @@ Accum<> tmr;		// Timer to reset AD envelope
 //
 
 // Tap1
-Delay<float> delay24(24.0/1000.0);
+Delay<> delay24(24.0/1000.0);
 AllPassFilter apf1(22.0, 0.4);
 AllPassFilter apf2(8.3, 0.6);
 SeriesAllPassFilter apf_inner12(apf1, apf2);
@@ -55,13 +55,11 @@ void roomReverb(float in, float& out, float decayTime)
 
 	float input = (in + feedback);
 
-	input *= POOPY;
-
 	float tap1 = apf_outer12( delay24(input), apf_inner12);
 
-	float tap2 = apf4_outer( tap1, apf3_inner);
+	float tap2 = apf4_outer(tap1, apf3_inner);
 
-	out = 0.5 * tap1 + 0.5 * tap2;
+	out = (0.5 * tap1) + (0.0 * tap2);
 	
 	feedback = lpf(tap2) * gain; 
 }
