@@ -11,7 +11,7 @@ public:
 
 	virtual float operator()(float input_sample, AllPassFilter& inner_apf)
 	{
-		return tick(input_sample, inner_apf) * SCALE;
+		return tick(input_sample, inner_apf);
 	}
 
 	virtual float operator()(float input_sample, SeriesAllPassFilter& inner_apf)
@@ -21,37 +21,30 @@ public:
 
 	virtual float tick(float input_sample, AllPassFilter& inner_apf)
 	{
-		static gam::Delay<float> delay(d_ms / 1000.0, 0);
+		static gam::Delay<> delay(d_ms / 1000.0, 0);
 
 		static float output_sample = 0;
 
 		output_sample = k * input_sample + inner_apf( delay(input_sample - k*output_sample) );
-
-		output_sample *= SCALE;
 
 		return output_sample;
 	}
 
 	virtual float tick(float input_sample, SeriesAllPassFilter& inner_apf)
 	{
-		static gam::Delay<float> delay(d_ms / 1000.0, 0);
+		static gam::Delay<> delay(d_ms / 1000.0, 0);
 
 		static float output_sample = 0;
 
 		output_sample = k * input_sample + inner_apf( delay(input_sample - k*output_sample) );
 
-		output_sample *= SCALE;
-
-
 		return output_sample;
 	}
 	
 private:
-	float d_ms; // Delay in ms
+	float d_ms;     // Delay in ms
 	float k;		// Feedback and feedforward gain
 
 };
-
-
 
 #endif
