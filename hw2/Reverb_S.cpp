@@ -18,10 +18,10 @@ int channelsOut =2;
 
 float input =0.0; 
 float output = 0.0; 
-float dryWet = 0.5; // 0.0 for dry signal and 1.0 for wet signal 
+float dryWet = 1; // 0.0 for dry signal and 1.0 for wet signal 
 float level = 0.1;  // Audio output level
 
-float decayTime = 0.2; // Decay time of the reverb (Play with this)
+float decayTime = 0.5; // Decay time of the reverb (Play with this)
 
 NoiseWhite<> white; // White Noise
 AD<> env;			// Attack/Decay envelope
@@ -44,6 +44,9 @@ NestedAllPassFilter apf4_outer(66, 0.1);
 // Feedback
 Biquad<> lpf;
 float feedback = 0;
+
+
+Delay<float> test_delay(0.001);
 
 void roomReverb(float in, float& out, float decayTime) 
 {

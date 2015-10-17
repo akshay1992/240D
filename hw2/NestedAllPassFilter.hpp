@@ -9,28 +9,14 @@ class NestedAllPassFilter : public AllPassFilter
 public:
 	NestedAllPassFilter(float d_ms, float k) : AllPassFilter(d_ms, k) {}
 
-	virtual float operator()(float input_sample, AllPassFilter& inner_apf)
+	float operator()(float input_sample, AllPassFilter& inner_apf)
 	{
-		return tick(input_sample, inner_apf);
+		return output_sample = k * input_sample + inner_apf( delay(input_sample - k*output_sample) );
 	}
 
-	virtual float operator()(float input_sample, SeriesAllPassFilter& inner_apf)
+	float operator()(float input_sample, SeriesAllPassFilter& inner_apf)
 	{
-		return tick(input_sample, inner_apf);
-	}
-
-	virtual float tick(float input_sample, AllPassFilter& inner_apf)
-	{
-		output_sample = k * input_sample + inner_apf( delay(input_sample - k*output_sample) );
-
-		return output_sample;
-	}
-
-	virtual float tick(float input_sample, SeriesAllPassFilter& inner_apf)
-	{
-		output_sample = k * input_sample + inner_apf( delay(input_sample - k*output_sample) );
-
-		return output_sample;
+		return output_sample = k * input_sample + inner_apf( delay(input_sample - k*output_sample) );
 	}
 };
 

@@ -56,19 +56,17 @@ void roomReverb(float in, float& out, float decayTime)
 	
 	// Reverb implementation goes here 
 	//
+	float input = (in + feedback);
 
-out = apf12_outer(in, apf12_inner);
-	// float input = (in + feedback);
+	float tap1 = apf12_outer(input, apf12_inner);
 
-	// float tap1 = apf12_outer(input, apf12_inner);
+	float tap2 = delay67(apf3(delay5(tap1)));
 
-	// float tap2 = delay67(apf3(delay5(tap1)));
+	float tap3 =  apf4_outer( input + delay15(tap2)*gain , apf4_inner);
 
-	// float tap3 =  apf4_outer( input + delay15(tap2)*gain , apf4_inner);
+	out = (tap1*0.5) + (tap2*0.5) + (tap3*0.5); 
 
-	// out = (tap1*0.5) + (tap2*0.5) + (tap3*0.5); 
-
-	// feedback = lpf( delay108(tap3) ) * gain;
+	feedback = lpf( delay108(tap3) ) * gain;
 }
 
 // DO NOT MODIFY THE AUDIO CALLBACK FUNCTION 

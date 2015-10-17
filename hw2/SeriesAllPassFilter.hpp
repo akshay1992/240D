@@ -8,7 +8,7 @@ class SeriesAllPassFilter : public AllPassFilter
 public:
 	SeriesAllPassFilter(AllPassFilter& apf1, AllPassFilter& apf2) : apf1(apf1), apf2(apf2) {}
 
-	virtual float tick(float input_sample)
+	virtual float operator()(float input_sample)
 	{
 		return apf2(apf1(input_sample));
 	}
