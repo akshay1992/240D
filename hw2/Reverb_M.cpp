@@ -30,25 +30,29 @@ Accum<> tmr;		// Timer to reset AD envelope
 //Declare your delays, lowpass and allpass filters here 
 //
 // Tap1
-AllPassFilter apf1(8.3, 0.7);
-AllPassFilter apf2(22, 0.5);
-SeriesAllPassFilter apf12_inner(apf1, apf2);
-NestedAllPassFilter apf12_outer(35, 0.3);
+Comb<> apf1(8.3 / 1000.0, 0.7, -0.7);
+Comb<> apf2(22.0 / 1000.0, 0.5, -0.5);
+Delay<> Delay35(35.0 / 1000.0);
 
 // Tap2
 Delay<float> delay5(5.0/1000.0);
 Delay<float> delay67(67.0/1000.0);
-AllPassFilter apf3(30, 0.5);
+
+Comb<> apf3(30.0 / 1000.0, 0.5, -0.5);
 
 // Tap3
 Delay<float> delay15(15.0/1000.0);
-AllPassFilter apf4_inner(9.8, 0.6);
-NestedAllPassFilter apf4_outer(39, 0.3);
+Comb<> apf4(9.8 / 1000.0, 0.6, -0.6);
+Delay<> Delay39(39.0 / 1000.0);
 
 // Feedback
 Delay<float> delay108(108.0/1000);
 Biquad<> lpf;
-float feedback = 0;
+
+// Global variables
+float tap1;
+float tap2;
+float tap3;
 
 void roomReverb(float in, float& out, float decayTime) 
 {
@@ -56,17 +60,16 @@ void roomReverb(float in, float& out, float decayTime)
 	
 	// Reverb implementation goes here 
 	//
-	float input = (in + feedback);
+	float input = (in + lpf( delay108(tap3) ) * gain);
 
-	float tap1 = apf12_outer(input, apf12_inner);
+	tap1 = input * 0.3 + apf2(apf1( Delay35(input - 0.3* tap1) ));
 
-	float tap2 = delay67(apf3(delay5(tap1)));
+	tap2 = delay67(apf3(delay5(tap1)));
 
-	float tap3 =  apf4_outer( input + delay15(tap2)*gain , apf4_inner);
+	float temp = (input+delay15(tap2)*gain);
+	tap3 = (temp) * 0.3 + apf4( Delay39((temp) - 0.3 * tap3) );
 
 	out = (tap1*0.5) + (tap2*0.5) + (tap3*0.5); 
-
-	feedback = lpf( delay108(tap3) ) * gain;
 }
 
 // DO NOT MODIFY THE AUDIO CALLBACK FUNCTION 

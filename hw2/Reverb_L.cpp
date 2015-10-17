@@ -20,8 +20,7 @@ float output = 0.0;
 float dryWet = 0.5; // 0.0 for dry signal and 1.0 for wet signal 
 float level = 0.1;  // Audio output level
 
-float decayTime = 0.9
-; // Decay time of the reverb (Play with this)
+float decayTime = 0.5; // Decay time of the reverb (Play with this)
 
 
 NoiseWhite<> white; // White Noise
@@ -31,26 +30,28 @@ Accum<> tmr;		// Timer to reset AD envelope
 //Declare your delays, lowpass and allpass filters here 
 //
 // Tap1
-AllPassFilter apf1(8, 0.3);
-AllPassFilter apf2(12, 0.3);
-Delay<float> delay8(8.0/1000.0);
+Comb<> apf1(8.0 / 1000.0, 0.3, -0.3);
+Comb<> apf2(12.0 / 1000.0, 0.3, -0.3);
+Delay<float> delay8(8.0 / 1000.0);
 
 // Tap2
-Delay<float> delay17(17.0/1000.0);
-AllPassFilter apf3_inner(62, 0.25);
-NestedAllPassFilter apf3_outer(87, 0.5);
-Delay<float> delay31(31.0/1000.0);
+Delay<float> delay17(17.0 / 1000.0);
+Delay<float> delay31(31.0 / 1000.0);
+Comb<> apf3(62.0 / 1000.0, 0.25, -0.25);
+Delay<> Delay87(87.0 / 1000.0);
+
 
 // Tap3
-Delay<float> delay3(3.0/1000.0);
-AllPassFilter apf4(76, 0.25);
-AllPassFilter apf5(30, 0.35);
-SeriesAllPassFilter apf45_inner(apf4, apf5);
-NestedAllPassFilter apf45_outer(120, 0.5);
+Delay<float> delay3(3.0 / 1000.0);
+Comb<> apf4(76.0 / 1000.0, 0.25, -0.25);
+Comb<> apf5(30.0 / 1000.0, 0.35, -0.35);
+Delay<> Delay120(120.0 / 1000.0);
 
 // Feedback
 Biquad<> lpf;
-float feedback = 0;
+float tap1;
+float tap2;
+float tap3;
 
 void roomReverb(float in, float& out, float decayTime) 
 {
@@ -58,17 +59,19 @@ void roomReverb(float in, float& out, float decayTime)
 	
 	// Reverb implementation goes here 
 	//
-	float input = (feedback + in) * 0.5;
+	float input = lpf(tap3) * gain + in;
 
-	float tap1 = delay8(apf2(apf1(input)));
+	tap1 = delay8(apf2(apf1(input)));
 
-	float tap2 = delay31(apf3_outer(delay17(tap1), apf3_inner));
+	// float tap2 = delay31(apf3_outer(delay17(tap1), apf3_inner));
+	float temp = delay17(tap1);
+	tap2 = delay31( temp * 0.5 + apf3( Delay87( temp - 0.5 * tap2) ) );
 
-	float tap3 = apf45_outer(delay3(tap2), apf45_inner);
+	// float tap3 = apf45_outer(delay3(tap2), apf45_inner);
+	temp = delay3(tap2);
+	tap3 = temp * 0.5 + apf5(apf4( Delay120( temp - 0.5 * tap3) ));
 
 	out = (0.34*tap1) + (0.14*tap2) + (0.14*tap3);
-
-	feedback = lpf(tap3) * gain;
 }
 
 // DO NOT MODIFY THE AUDIO CALLBACK FUNCTION 
