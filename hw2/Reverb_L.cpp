@@ -20,7 +20,8 @@ float output = 0.0;
 float dryWet = 0.5; // 0.0 for dry signal and 1.0 for wet signal 
 float level = 0.1;  // Audio output level
 
-float decayTime = 0.5; // Decay time of the reverb (Play with this)
+float decayTime = 0.9
+; // Decay time of the reverb (Play with this)
 
 
 NoiseWhite<> white; // White Noise
@@ -32,16 +33,16 @@ Accum<> tmr;		// Timer to reset AD envelope
 // Tap1
 AllPassFilter apf1(8, 0.3);
 AllPassFilter apf2(12, 0.3);
-Delay<> delay8(8.0/1000.0);
+Delay<float> delay8(8.0/1000.0);
 
 // Tap2
-Delay<> delay17(17.0/1000.0);
+Delay<float> delay17(17.0/1000.0);
 AllPassFilter apf3_inner(62, 0.25);
 NestedAllPassFilter apf3_outer(87, 0.5);
-Delay<> delay31(31.0/1000.0);
+Delay<float> delay31(31.0/1000.0);
 
 // Tap3
-Delay<> delay3(3.0/1000.0);
+Delay<float> delay3(3.0/1000.0);
 AllPassFilter apf4(76, 0.25);
 AllPassFilter apf5(30, 0.35);
 SeriesAllPassFilter apf45_inner(apf4, apf5);

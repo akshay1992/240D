@@ -35,7 +35,7 @@ public:
 protected:
 	float d_ms; 	// Delay in ms
 	float k;		// Feedback and feedforward gain
-	Delay<> delay;
+	Delay<float> delay;
 	float output_sample;
 };
 
