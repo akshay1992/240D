@@ -32,8 +32,8 @@ Accum<> tmr;		// Timer to reset AD envelope
 
 // Tap1
 Delay<float> delay24(24.0/1000.0);
-Comb<> apf1(22.0, 0.4, -0.4);
-Comb<> apf2(8.3, 0.6, -0.6);
+Comb<> apf1(22.0 / 1000.0, 0.4, -0.4);
+Comb<> apf2(8.3 / 1000.0, 0.6, -0.6);
 Delay<> Delay35(35 / 1000.0);
 
 // Tap2
