@@ -1,4 +1,3 @@
- #include <stdio.h>
 #include "Gamma/AudioIO.h" 
 #include "Gamma/Domain.h" 
 #include "Gamma/Oscillator.h" 
@@ -44,6 +43,7 @@ NestedAllPassFilter apf4_outer(66, 0.1);
 
 // Feedback
 Biquad<> lpf;
+float feedback = 0;
 
 void roomReverb(float in, float& out, float decayTime) 
 {
@@ -51,15 +51,13 @@ void roomReverb(float in, float& out, float decayTime)
 	
 	// Reverb implementation goes here 
 	//
-	static float feedback = 0;
-
-	float input = (in + feedback);
+	float input = (in + feedback) * 0.5;
 
 	float tap1 = apf_outer12( delay24(input), apf_inner12);
 
 	float tap2 = apf4_outer(tap1, apf3_inner);
 
-	out = (0.5 * tap1) + (0.0 * tap2);
+	out = (0.5 * tap1) + (0.5 * tap2);
 	
 	feedback = lpf(tap2) * gain; 
 }
@@ -92,6 +90,7 @@ int main()
 	//
 	lpf.type(LOW_PASS);
 	lpf.freq(4200);
+	lpf.res(sqrt(2.0)/2.0);
 	
 	AudioIO audioIO(frameCount, samplingRate, audioCallBack, NULL, channelsOut, channelsIn);
 	Sync::master().spu(audioIO.framesPerSecond()); 

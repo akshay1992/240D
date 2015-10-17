@@ -48,6 +48,7 @@ NestedAllPassFilter apf4_outer(39, 0.3);
 // Feedback
 Delay<> delay108(108.0/1000);
 Biquad<> lpf;
+float feedback = 0;
 
 void roomReverb(float in, float& out, float decayTime) 
 {
@@ -55,17 +56,14 @@ void roomReverb(float in, float& out, float decayTime)
 	
 	// Reverb implementation goes here 
 	//
-	static float feedback =0;
 
-	float input = in + feedback;
+	float input = (in + feedback) * 0.2;
 
 	float tap1 = apf12_outer(input, apf12_inner);
 
 	float tap2 = delay67(apf3(delay5(tap1)));
 
-	float tap3 =  ( input + delay15(tap2)*gain );
-
-	tap3 = apf4_outer(tap3, apf4_inner);
+	float tap3 =  apf4_outer( input + delay15(tap2)*gain , apf4_inner);
 
 	out = (tap1*0.5) + (tap2*0.5) + (tap3*0.5); 
 
@@ -100,6 +98,7 @@ int main()
 	//
 	lpf.type(LOW_PASS);
 	lpf.freq(2500);
+	lpf.res(sqrt(2.0)/2.0);
 	
 	AudioIO audioIO(frameCount, samplingRate, audioCallBack, NULL, channelsOut, channelsIn);
 	Sync::master().spu(audioIO.framesPerSecond()); 

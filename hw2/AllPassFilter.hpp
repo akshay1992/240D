@@ -5,13 +5,18 @@
 #include "Gamma/Delay.h"
 
 // All pass filter implementation
-// NOTE: Assumes a 44100 sample rate
+
+using namespace gam;
 
 class AllPassFilter
 {
 public:
 
-	AllPassFilter(float d_ms, float k) : d_ms(d_ms), k(k) {}
+	AllPassFilter(float d_ms, float k) : 
+		d_ms(d_ms), 
+		k(k), 
+		delay(d_ms / 1000.0), 		// Initialize the delay line. (This was verified to work)
+		output_sample(0) {}
 
 	AllPassFilter() {}
 
@@ -22,18 +27,16 @@ public:
 
 	virtual float tick(float input_sample)
 	{
-		static 	gam::Delay<> delay(d_ms / 1000.0);
-
-		static float output_sample = 0;
-
 		output_sample = k * input_sample + delay(input_sample - k*output_sample);
 
 		return output_sample;
 	}
 	
-private:
-	float d_ms; // Delay in ms
+protected:
+	float d_ms; 	// Delay in ms
 	float k;		// Feedback and feedforward gain
+	Delay<> delay;
+	float output_sample;
 };
 
 #include "SeriesAllPassFilter.hpp"

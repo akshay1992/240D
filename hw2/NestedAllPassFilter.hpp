@@ -7,7 +7,7 @@ class NestedAllPassFilter : public AllPassFilter
 {
 
 public:
-	NestedAllPassFilter(float d_ms, float k) : d_ms(d_ms), k(k) {}
+	NestedAllPassFilter(float d_ms, float k) : AllPassFilter(d_ms, k) {}
 
 	virtual float operator()(float input_sample, AllPassFilter& inner_apf)
 	{
@@ -21,10 +21,6 @@ public:
 
 	virtual float tick(float input_sample, AllPassFilter& inner_apf)
 	{
-		static gam::Delay<> delay(d_ms / 1000.0, 0);
-
-		static float output_sample = 0;
-
 		output_sample = k * input_sample + inner_apf( delay(input_sample - k*output_sample) );
 
 		return output_sample;
@@ -32,19 +28,10 @@ public:
 
 	virtual float tick(float input_sample, SeriesAllPassFilter& inner_apf)
 	{
-		static gam::Delay<> delay(d_ms / 1000.0, 0);
-
-		static float output_sample = 0;
-
 		output_sample = k * input_sample + inner_apf( delay(input_sample - k*output_sample) );
 
 		return output_sample;
 	}
-	
-private:
-	float d_ms;     // Delay in ms
-	float k;		// Feedback and feedforward gain
-
 };
 
 #endif
