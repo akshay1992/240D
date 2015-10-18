@@ -6,8 +6,6 @@
 #include "Gamma/Filter.h"
 #include "Gamma/Delay.h"
 
-#include "AllPassFilter.hpp"
-
 using namespace gam;
 using namespace std;
 

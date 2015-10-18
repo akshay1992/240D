@@ -1,12 +1,10 @@
-#include <stdio.h>
 #include "Gamma/AudioIO.h" 
 #include "Gamma/Domain.h" 
 #include "Gamma/Oscillator.h" 
 #include "Gamma/Envelope.h" 
 #include "Gamma/Noise.h"
 #include "Gamma/Filter.h"
-
-#include "AllPassFilter.hpp"
+#include "Gamma/Delay.h"
 
 using namespace gam;
 
@@ -20,7 +18,7 @@ float output = 0.0;
 float dryWet = 0.5; // 0.0 for dry signal and 1.0 for wet signal 
 float level = 0.1;  // Audio output level
 
-float decayTime = 0.5; // Decay time of the reverb (Play with this)
+float decayTime = 0.2; // Decay time of the reverb (Play with this)
 
 
 NoiseWhite<> white; // White Noise
@@ -35,13 +33,13 @@ Comb<> apf2(22.0 / 1000.0, 0.5, -0.5);
 Delay<> Delay35(35.0 / 1000.0);
 
 // Tap2
-Delay<float> delay5(5.0/1000.0);
-Delay<float> delay67(67.0/1000.0);
+Delay<float> delay5(5.0 / 1000.0);
+Delay<float> delay67(67.0 / 1000.0);
 
 Comb<> apf3(30.0 / 1000.0, 0.5, -0.5);
 
 // Tap3
-Delay<float> delay15(15.0/1000.0);
+Delay<float> delay15(15.0 / 1000.0);
 Comb<> apf4(9.8 / 1000.0, 0.6, -0.6);
 Delay<> Delay39(39.0 / 1000.0);
 

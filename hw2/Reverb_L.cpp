@@ -1,12 +1,10 @@
-#include <stdio.h>
 #include "Gamma/AudioIO.h" 
 #include "Gamma/Domain.h" 
 #include "Gamma/Oscillator.h" 
 #include "Gamma/Envelope.h" 
 #include "Gamma/Noise.h"
 #include "Gamma/Filter.h"
-
-#include "AllPassFilter.hpp"
+#include "Gamma/Delay.h"
 
 using namespace gam;
 
@@ -32,7 +30,7 @@ Accum<> tmr;		// Timer to reset AD envelope
 // Tap1
 Comb<> apf1(8.0 / 1000.0, 0.3, -0.3);
 Comb<> apf2(12.0 / 1000.0, 0.3, -0.3);
-Delay<float> delay8(8.0 / 1000.0);
+Delay<float> delay4(4.0 / 1000.0);
 
 // Tap2
 Delay<float> delay17(17.0 / 1000.0);
@@ -49,6 +47,8 @@ Delay<> Delay120(120.0 / 1000.0);
 
 // Feedback
 Biquad<> lpf;
+
+// Global Variables
 float tap1;
 float tap2;
 float tap3;
@@ -61,7 +61,7 @@ void roomReverb(float in, float& out, float decayTime)
 	//
 	float input = lpf(tap3) * gain + in;
 
-	tap1 = delay8(apf2(apf1(input)));
+	tap1 = delay4(apf2(apf1(input)));
 
 	// float tap2 = delay31(apf3_outer(delay17(tap1), apf3_inner));
 	float temp = delay17(tap1);
