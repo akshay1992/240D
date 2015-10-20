@@ -53,6 +53,8 @@ float tap1;
 float tap2;
 float tap3;
 
+float tap2_predelay;
+
 void roomReverb(float in, float& out, float decayTime) 
 {
 	float gain = decayTime;	// Gain value to control decay time
@@ -65,7 +67,8 @@ void roomReverb(float in, float& out, float decayTime)
 
 	// float tap2 = delay31(apf3_outer(delay17(tap1), apf3_inner));
 	float temp = delay17(tap1);
-	tap2 = delay31( temp * 0.5 + apf3( Delay87( temp - 0.5 * tap2) ) );
+	tap2_predelay = temp * 0.5 + apf3( Delay87(temp - 0.5 * tap2_predelay) );
+	tap2 = delay31(tap2_predelay);
 
 	// float tap3 = apf45_outer(delay3(tap2), apf45_inner);
 	temp = delay3(tap2);

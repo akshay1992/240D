@@ -53,7 +53,8 @@ void roomReverb(float in, float& out, float decayTime)
 	//
 	float input = in + lpf(tap2) * gain;
 
-	tap1 = input * 0.3 + apf1(apf2(delay24( Delay35(input - 0.3*output))) ) ;
+	float temp = delay24(input);
+	tap1 = temp * 0.3 + apf1(apf2( Delay35( temp - 0.3*output) )) ;
 
 	tap2 = tap1 * 0.1 + apf3( Delay66(tap1 - tap2 * 0.1) ); 
 
