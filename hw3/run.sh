@@ -1,7 +1,7 @@
 #!/bin/bash
 
 pushd ../../
-	./run.sh 240D/hw3/src/hw3.cpp
+	./run.sh 240D/hw3/src/VBAP.cpp
 popd
 
 mkdir -p data

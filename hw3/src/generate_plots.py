@@ -4,9 +4,7 @@ from matplotlib.pyplot import *
 import csv
 import os
 
-
 pwd = os.getcwd()
-
 
 # ------------------------
 
