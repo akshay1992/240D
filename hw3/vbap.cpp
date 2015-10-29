@@ -5,11 +5,7 @@
 #include "Gamma/Domain.h"
 #include "Gamma/Oscillator.h"
 
-#include "VBAP_Utils.hpp"
-#include <algorithm>
-
-#define foreach(v) for(int i=0; i<v.size(); i++) 
-#define foreachadjacent(v) for(int i=0, j = 1; i<v.size(); i++, j = (i+1)%v.size()) 
+#include "Loudspeakers.hpp"
 
 using namespace std;
 using namespace gam;
@@ -37,74 +33,28 @@ std::vector<float> gainOut(8,0.0);
 // Vector of speaker coordinates
 std::vector<std::vector<float> > speakerCoordinates(8, std::vector<float>(2,0.0)); 
 
-// Loudspeaker Class
-// YOUR NEED TO COMPLETE THIS CLASS
-
-class loudSpeakers {
-public:
-    loudSpeakers()
-    {
-        
-    }
-    
-    void computeMatricies(std::vector< std::vector<float> > speaker_coordinates)
-    {
-        /* 
-        For each speaker, calculate the polar co-ordinates. 
-        Find all the angles. 
-        Order them in increasing order of angles. 
-        Compute the matrices and store everything in function prototypes 
-        
-
-        // Alt
-        Create new struct of loudspeaker pairs (Bisector and half-spread)
-        Order them in the correct order.
-
-
-
-
-
-
-         */
-
-        // cout << speaker_coordinates.size() << endl;
-        foreach(speaker_coordinates)
-        {
-            speaker_list.push_back(Speaker(speaker_coordinates[i]));
-        }
-
-        std::sort(speaker_list.begin(), speaker_list.end(), Speaker::less_than);
-
-        foreachadjacent(speaker_list)
-        {
-            speaker_pairs.push_back( SpeakerPair(speaker_list[i], speaker_list[j]) );
-        }
-    }
-
-    vector<Speaker> speaker_list; 
-    vector<SpeakerPair> speaker_pairs;
-};
-
+// Loudspeaker Class - See Loudspeakers.hpp
 
 // Create loudspeaker object
-loudSpeakers loudSpeakersObject;
+LoudSpeakers loudSpeakersObject;
 
 // VBAP Function
-std::vector<float> VBAP(float2 sourcePosition, loudSpeakers loudSpeakersObject)
+std::vector<float> VBAP(float2 sourcePosition, LoudSpeakers loudSpeakersObject)
 {
     std::vector<float> out(8,0.0);
     
     // YOUR VBAP CODE GOES HERE
     //
-    foreach(loudSpeakersObject.speaker_pairs)
-    {
-        std::vector<float> srcPosition;
-        srcPosition.push_back(sourcePosition[0]);
-        srcPosition.push_back(sourcePosition[1]);
-        cout << loudSpeakersObject.speaker_pairs[i].ComputeGains(srcPosition) << endl;
-    }
-    cout << endl << endl;
-    
+
+    vector<float> src_pos;                     // This may be redundant.
+
+    src_pos.push_back(sourcePosition[0]);
+    src_pos.push_back(sourcePosition[1]);
+
+    Source source(src_pos);                 // Automatically computes the polar
+
+    out = loudSpeakersObject.getVBAPGains(source);
+
     return out;
 }
 
