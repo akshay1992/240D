@@ -2,20 +2,19 @@
 #define LOUDSPEAKERS_HPP
 
 /*
-This is a generic Loudspeakers class that can currently be used for 2D Vbap.
+This is a generic Loudspeakers class that can be used for 2D Vbap.
 
 It places speakers on the unit circle by default.
 */
 
+#include "allocore/spatial/al_DistAtten.hpp"
 #include "VBAP_Utils.hpp"
-
-#define foreach(v) for(int i=0; i<v.size(); i++) 
-#define foreachadjacent(v) for(int i=0, j = 1; i<v.size(); i++, j = (i+1)%v.size()) 
 
 class LoudSpeakers {
 public:
     LoudSpeakers(): DBA_enabled(true)
     {
+    	dba.nearClip(1.0);
 
     }
     
@@ -53,33 +52,27 @@ public:
        
                 gains[speaker_pairs[i].sp2.index] = (-1 * source.cartesian[0] * speaker_pairs[i].sp1.cartesian[1] ) + ( source.cartesian[1] * speaker_pairs[i].sp1.cartesian[0] );
                 gains[speaker_pairs[i].sp2.index] /= speaker_pairs[i].det;
-                
 
+                // Normalize to unit circle
                 float mag = sqrt(gains[speaker_pairs[i].sp1.index]*gains[speaker_pairs[i].sp1.index] + gains[speaker_pairs[i].sp2.index]*gains[speaker_pairs[i].sp2.index]);
-                
                 gains[speaker_pairs[i].sp1.index] /= mag;
                 gains[speaker_pairs[i].sp2.index] /= mag;
 
                 if(DBA_enabled)
                 {
-                	float distance = source.polar[0];
+    	            gains[speaker_pairs[i].sp1.index] *= dba.attenuation(source.polar[0]);
+	                gains[speaker_pairs[i].sp2.index] *= dba.attenuation(source.polar[0]);
                 }
 
                 break;
             }
-        }
-
-        // DEBUG printing
-        // foreach(gains)
-        // {
-        //     printf("%0.2f\t", gains[i]);
-        // }
-        // printf("\n\n");
-
+        };
         return gains;
     }
+    
+    bool DBA_enabled;					// Distance-based attenuation
+	al::DistAtten<float> dba;
 
-    bool DBA_enabled;					// Distance based attenuation
     std::vector<Speaker> speaker_list; 
     std::vector<SpeakerPair> speaker_pairs;
 };

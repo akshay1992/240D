@@ -5,8 +5,15 @@
 
 // Helper classes for 2D VBAP
 
+#define foreach(v) for(int i=0; i<v.size(); i++) 
+#define foreachadjacent(v) for(int i=0, j = 1; i<v.size(); i++, j = (i+1)%v.size()) 
+
+
 #include <cmath>
 
+// ------------------------------------------------------------
+// 							SPEAKER
+// ------------------------------------------------------------
 class Speaker
 {
 public:
@@ -53,6 +60,9 @@ public:
 	static bool greater_than(const Speaker& sp1, const Speaker& sp2) {return sp1.polar[1]>sp2.polar[1];}
 };
 
+// ------------------------------------------------------------
+// 							SOUND SOURCE
+// ------------------------------------------------------------
 
 class Source : public Speaker
 {
@@ -60,6 +70,10 @@ public:
 	Source(std::vector<float> cartesian) : Speaker(cartesian) {}
 	// Identical to speaker. This is just for 'syntactic sugar'
 };
+
+// ------------------------------------------------------------
+// 							SPEAKER PAIR
+// ------------------------------------------------------------
 
 class SpeakerPair
 {

@@ -33,7 +33,7 @@ std::vector<float> gainOut(8,0.0);
 // Vector of speaker coordinates
 std::vector<std::vector<float> > speakerCoordinates(8, std::vector<float>(2,0.0)); 
 
-// Loudspeaker Class - See Loudspeakers.hpp
+// Loudspeaker Class ----> See Loudspeakers.hpp
 
 // Create loudspeaker object
 LoudSpeakers loudSpeakersObject;
@@ -47,7 +47,6 @@ std::vector<float> VBAP(float2 sourcePosition, LoudSpeakers loudSpeakersObject)
     //
 
     vector<float> src_pos;                     // This may be redundant.
-
     src_pos.push_back(sourcePosition[0]);
     src_pos.push_back(sourcePosition[1]);
 
