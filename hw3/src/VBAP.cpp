@@ -45,7 +45,14 @@ std::vector<std::vector<float> > speakerCoordinates(8, std::vector<float>(2,0.0)
 class Speaker
 {
 public:
-    Speaker(std::vector<float> cartesian) : cartesian(cartesian)
+
+    Speaker(std::vector<float> cartesian) : cartesian(cartesian), actual_index(-1)
+    {
+        CalculatePolar();
+        CalculateNormalized();
+    }
+
+    Speaker(std::vector<float> cartesian, float actual_index) : cartesian(cartesian), actual_index(actual_index)
     {
         CalculatePolar();
         CalculateNormalized();
@@ -82,10 +89,13 @@ public:
     std::vector<float> norm;        // Normalized cartesian co-ordinates
 
     float gain; 
-    int index;
-
+    int sorted_index;
+    
     static bool less_than(const Speaker& sp1, const Speaker& sp2) {return sp1.polar[1]<sp2.polar[1];}
     static bool greater_than(const Speaker& sp1, const Speaker& sp2) {return sp1.polar[1]>sp2.polar[1];}
+
+    int actual_index;
+
 };
 
 
@@ -153,18 +163,16 @@ public:
         // Make speakers
         foreach(speaker_coordinates)
         {
-            speaker_list.push_back(Speaker(speaker_coordinates[i]));
+            speaker_list.push_back(Speaker(speaker_coordinates[i], i));
         }
 
-        // Sort them according to increasing azimuth
+        // Sort them according to increasing azimuth, 
         std::sort(speaker_list.begin(), speaker_list.end(), Speaker::less_than);
+        foreach(speaker_list) speaker_list[i].sorted_index = i; // Book-keeping
 
+        // Make speaker pairs
         foreachadjacent(speaker_list)
         {
-            // Store index of the sorted speakers
-            speaker_list[i].index = i;  
-
-            // Make speaker pairs
             speaker_pairs.push_back( SpeakerPair(speaker_list[i], speaker_list[j]) );
         }
     }
@@ -177,23 +185,22 @@ public:
         {
             if (speaker_pairs[i].isActive(source))
             {
-                gains[speaker_pairs[i].sp1.index] = ( source.cartesian[0] * speaker_pairs[i].sp2.cartesian[1] ) - ( source.cartesian[1] * speaker_pairs[i].sp2.cartesian[0] );
-                gains[speaker_pairs[i].sp1.index] /= speaker_pairs[i].det;
+                gains[speaker_pairs[i].sp1.actual_index] = ( source.cartesian[0] * speaker_pairs[i].sp2.cartesian[1] ) - ( source.cartesian[1] * speaker_pairs[i].sp2.cartesian[0] );
+                gains[speaker_pairs[i].sp1.actual_index] /= speaker_pairs[i].det;
        
-                gains[speaker_pairs[i].sp2.index] = (-1 * source.cartesian[0] * speaker_pairs[i].sp1.cartesian[1] ) + ( source.cartesian[1] * speaker_pairs[i].sp1.cartesian[0] );
-                gains[speaker_pairs[i].sp2.index] /= speaker_pairs[i].det;
+                gains[speaker_pairs[i].sp2.actual_index] = (-1 * source.cartesian[0] * speaker_pairs[i].sp1.cartesian[1] ) + ( source.cartesian[1] * speaker_pairs[i].sp1.cartesian[0] );
+                gains[speaker_pairs[i].sp2.actual_index] /= speaker_pairs[i].det;
 
-                // Normalize to unit circle
-                float mag = sqrt(gains[speaker_pairs[i].sp1.index]*gains[speaker_pairs[i].sp1.index] + gains[speaker_pairs[i].sp2.index]*gains[speaker_pairs[i].sp2.index]);
-                gains[speaker_pairs[i].sp1.index] /= mag;
-                gains[speaker_pairs[i].sp2.index] /= mag;
+                // Normalize gains of active pair
+                float mag = sqrt(gains[speaker_pairs[i].sp1.actual_index]*gains[speaker_pairs[i].sp1.actual_index] + gains[speaker_pairs[i].sp2.actual_index]*gains[speaker_pairs[i].sp2.actual_index]);
+                gains[speaker_pairs[i].sp1.actual_index] /= mag;
+                gains[speaker_pairs[i].sp2.actual_index] /= mag;
 
                 if(DBA_enabled)
                 {
-                    gains[speaker_pairs[i].sp1.index] *= dba.attenuation(source.polar[0]);
-                    gains[speaker_pairs[i].sp2.index] *= dba.attenuation(source.polar[0]);
+                    gains[speaker_pairs[i].sp1.actual_index] *= dba.attenuation(source.polar[0]);
+                    gains[speaker_pairs[i].sp2.actual_index] *= dba.attenuation(source.polar[0]);
                 }
-
                 break;
             }
         };
