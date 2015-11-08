@@ -64,4 +64,21 @@ for speaker in range(nspeakers):
 
 	clf()
 
+# ------------------
+
+sums = []
+
+for i in range(len(gains)):
+	s = np.sqrt(np.sum([x*x for x in gains[i,:]]))
+	sums.append(s)
+
+plot(sums)
+title("Overall Gain plot")
+xlabel("Overall Gain")
+ylabel("Time Slice")
+savefig("OverallGainPlot.png")
+
+clf()
+
+
 
