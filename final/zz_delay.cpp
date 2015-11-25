@@ -34,11 +34,11 @@ public:
 	MyApp()
     :	burst(2e4,2e3, 0.1)
 	{
-        spatDelay =  MultichannelDelay(0.2, 0.5);
+        spatDelay =  MultichannelDelay(0.2, 0.5, 0.4);
 
 
         sf.format(SoundFile::WAV);
-        sf.channels(spatDelay.nstages);
+        sf.channels(spatDelay.get_nchannels());
         sf.encoding(SoundFile::PCM_24);
         sf.frameRate(sr);
 

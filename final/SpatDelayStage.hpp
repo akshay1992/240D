@@ -7,6 +7,7 @@ using namespace gam;
 
 class DelayStage 
 {
+public:
 	Delay<float, ipl::Trunc> delay_line;
 
 	DelayStage(float delay_seconds, float max_delay)
@@ -23,6 +24,12 @@ class DelayStage
 		out = in;
 
 		return out;
+	}
+
+
+	float operator()(float input_sample)
+	{
+		return FX(delay_line(input_sample));
 	}
 
 };

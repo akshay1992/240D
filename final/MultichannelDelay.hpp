@@ -13,9 +13,10 @@ public:
         // TODO: Safety when non initialized and configured delay lines
     }
 
-    MultichannelDelay(float delay_seconds, float feedback) :
+    MultichannelDelay(float delay_seconds, float feedback, float max_delay) :
             delay_seconds(delay_seconds),
-            feedback(feedback)
+            feedback(feedback),
+            max_delay(max_delay)
     {
             compute_nstages();
             configure_delay_lines();
@@ -35,14 +36,14 @@ public:
 
     int get_nchannels()
     {
-        return nstages;
+        return nstages+1;	// +1 for dry
     }
 
     float* operator()(float input_sample)
     {
-        float *y = (float*) calloc(nstages, sizeof(float));
+        float *y = (float*) calloc(nstages+1, sizeof(float));
 
-        y[0] = input_sample;	// Dry
+        y[0] = input_sample;	// Dry signal
 
         for(int i=1; i<nstages; i++)
         {
@@ -55,13 +56,10 @@ public:
     void configure_delay_lines()
     {   
         //TODO:
-    	// assert (nstages!=0)
-
+    	// assert (nstages>0)
         for(int i=0; i<nstages; i++)
         {
-            Delay<float, ipl::Trunc> *d = new Delay<float, ipl::Trunc>();
-            d->maxDelay(0.4);
-            d->delay(delay_seconds);
+            DelayStage *d = new DelayStage(delay_seconds, max_delay);
             delays.push_back(*d);
         }
     }
@@ -76,19 +74,15 @@ public:
     		;// TODO: ADD a safety measure
     }
 
-
-
 public:
-    float nstages;
-
+    std::vector<DelayStage> delays;
 
 private:
-    std::vector< Delay<float, ipl::Trunc> > delays;
+    float nstages;
     float feedback;
     float delay_seconds;
-    float decay_thresh = -40;
-
-    
+    float max_delay;
+    float decay_thresh = -30;
 };
 
 
