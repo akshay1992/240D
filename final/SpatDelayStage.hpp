@@ -2,6 +2,7 @@
 #define SPAT_DELAY_STAGE
 
 #include "Gamma/Delay.h"
+#include "Gamma/Envelope.h"
 #include "allocore/math/al_Random.hpp"
 #include "allocore/math/al_Vec.hpp"
 #include "allocore/sound/al_AudioScene.hpp"
@@ -35,8 +36,11 @@ public:
               bounds_upper(5.0, 360.0, 360.0),
               bounds_lower(0, 0, 0),
               bounds_range(bounds_upper - bounds_lower),
-              rand_gen()
+              rand_gen(),
+              gateThresh(0.01),
+              gateClosingDelay(0.01)
 	{
+            gate = Gate<>(gateClosingDelay, gateThresh);
 	}
 
 	virtual float FX(float in) 
@@ -78,14 +82,19 @@ public:
             float out_sample = FX(delay_line(input_sample));
             if(!lock_position)
             {
-                if(true) //TODO:Apply gate here
+                if(true)
                    setRandomPosition();
             }
-            return out_sample;
+
+                return out_sample * gate(out_sample);
 	}
 
 private:
         al::rnd::Random<> rand_gen;
+
+        Gate<> gate;
+        float gateThresh;
+        float gateClosingDelay;
 
         al::Vec3f bounds_upper;
         al::Vec3f bounds_lower;
@@ -105,8 +114,5 @@ private:
             position = toCartesian( al::Vec3f (r, az, el) );
         }
 };
-
-
-
 
 #endif

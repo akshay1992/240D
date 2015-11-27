@@ -1,7 +1,7 @@
 #include "Gamma/../examples/AudioApp.h"
-#include "Gamma/Delay.h"
-#include "Gamma/Effects.h"
+#include "allocore/sound/al_Reverb.hpp"
 #include "Gamma/SoundFile.h"
+#include "Gamma/Effects.h"
 
 #include "MultichannelDelay.hpp"
 using namespace gam;
@@ -26,7 +26,6 @@ public:
     :	burst(2e4,2e3, 0.1)
 	{
         spatDelay = MultichannelDelay(0.2, 0.5, 0.4);
-
 
         sf.format(SoundFile::WAV);
         sf.channels(spatDelay.get_nchannels());
@@ -53,11 +52,11 @@ public:
 
         //DEBUGGING
 
-        cout << spatDelay.get_nchannels() << " CHANNELS " << spatDelay.delays.size() << " NSTAGES" <<endl;
+//        cout << spatDelay.get_nchannels() << " CHANNELS " << spatDelay.delays.size() << " NSTAGES" <<endl;
 
-        loopN(spatDelay.delays.size())
-            cout << i << ": " << toEuler(spatDelay.delays[i].pos() )<< endl;
-        cout << endl << endl;
+//        loopN(spatDelay.delays.size())
+//            cout << i << ": " << toEuler(spatDelay.delays[i].pos() )<< endl;
+//        cout << endl << endl;
 	}
 };
 
