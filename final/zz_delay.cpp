@@ -1,13 +1,3 @@
-/*	Gamma - Generic processing library
-	See COPYRIGHT file for authors and license information
-	
-Example:	Delay-line
-Author:		Lance Putnam, 2012
-
-Description:
-This demonstrates the multiple uses of a delay-line.
-*/
-
 #include "Gamma/../examples/AudioApp.h"
 #include "Gamma/Delay.h"
 #include "Gamma/Effects.h"
@@ -15,13 +5,14 @@ This demonstrates the multiple uses of a delay-line.
 
 #include "MultichannelDelay.hpp"
 using namespace gam;
+using namespace std;
 
 #define loopN(n) for(int i=0; i<n; i++)
 
 
 SoundFile sf("out.wav");
 
-const double sr = 48000;
+const double sr = 44100;
 
 class MyApp : public AudioApp{
 public:
@@ -34,7 +25,7 @@ public:
 	MyApp()
     :	burst(2e4,2e3, 0.1)
 	{
-        spatDelay =  MultichannelDelay(0.2, 0.5, 0.4);
+        spatDelay = MultichannelDelay(0.2, 0.5, 0.4);
 
 
         sf.format(SoundFile::WAV);
@@ -59,6 +50,14 @@ public:
 
             sf.write(y, 1);
 		}
+
+        //DEBUGGING
+
+        cout << spatDelay.get_nchannels() << " CHANNELS " << spatDelay.delays.size() << " NSTAGES" <<endl;
+
+        loopN(spatDelay.delays.size())
+            cout << i << ": " << toEuler(spatDelay.delays[i].pos() )<< endl;
+        cout << endl << endl;
 	}
 };
 

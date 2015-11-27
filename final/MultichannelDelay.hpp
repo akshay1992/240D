@@ -8,15 +8,11 @@ using namespace gam;
 class MultichannelDelay
 {
 public:
-    MultichannelDelay()
-    {
-        // TODO: Safety when non initialized and configured delay lines
-    }
-
-    MultichannelDelay(float delay_seconds, float feedback, float max_delay) :
+    MultichannelDelay(float delay_seconds=-1, float feedback=0.5, float max_delay=2) :
             delay_seconds(delay_seconds),
             feedback(feedback),
-            max_delay(max_delay)
+            max_delay(max_delay),
+            focal_point( toCartesian(5.0, 0, 0) )
     {
             compute_nstages();
             configure_delay_lines();
@@ -25,7 +21,7 @@ public:
     void set_delay_seconds(float delay_sec)
     {
     	delay_seconds = delay_sec;
-		configure_delay_lines();
+        configure_delay_lines();
     }
 
     void set_feedback(float fb)
@@ -45,21 +41,21 @@ public:
 
         y[0] = input_sample;	// Dry signal
 
-        for(int i=1; i<nstages; i++)
+        for(int i=0; i<nstages; i++)
         {
-            y[i] = delays[i](y[i-1]) * feedback;
+            y[i+1] = delays[i](y[i]) * feedback;
         }
 
         return y;
     }
 
     void configure_delay_lines()
-    {   
+    {
         //TODO:
     	// assert (nstages>0)
         for(int i=0; i<nstages; i++)
         {
-            DelayStage *d = new DelayStage(delay_seconds, max_delay);
+            DelayStage *d = new DelayStage(delay_seconds, delay_seconds+1);
             delays.push_back(*d);
         }
     }
@@ -76,6 +72,7 @@ public:
 
 public:
     std::vector<DelayStage> delays;
+    al::Vec3f focal_point;
 
 private:
     float nstages;
