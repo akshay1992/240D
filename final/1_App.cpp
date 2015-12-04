@@ -22,5 +22,6 @@ public:
 };
 
 int main(){
+    gam::Domain::master().spu(44100);
     MyApp().start();
 }
