@@ -1,20 +1,23 @@
 #include "Gamma/../examples/AudioApp.h"
+#include "allocore/al_Allocore.hpp"
 
 #include "TestSignals.hpp"
 
-class MyApp : public gam::AudioApp{
+class MyApp : public al::App{
 public:
 
     declareTestSig();
     MyApp(){
 
         setupTestSig();
+        gam::Domain::master().spu(44100);
+        initAudio(44100, 128, 2, 0);
     }
 
-    void onAudio(gam::AudioIOData& io){
+    void onSound(al::AudioIOData& io) override{
         while(io()){
 
-            float s = test_burst();
+            float s = test_sind();
 
             io.out(0) = io.out(1) = s;
         }
@@ -22,6 +25,5 @@ public:
 };
 
 int main(){
-    gam::Domain::master().spu(44100);
     MyApp().start();
 }

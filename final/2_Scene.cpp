@@ -1,4 +1,4 @@
-#include "Gamma/../examples/AudioApp.h"
+#include "allocore/al_Allocore.hpp"
 #include "TestSignals.hpp"
 
 #include "allocore/sound/al_AudioScene.hpp"
@@ -6,8 +6,9 @@
 #include "allocore/sound/al_Speaker.hpp"
 
 #define BLOCK_SIZE 128
+#define SR 44100
 
-class MyApp : public gam::AudioApp{
+class MyApp : public al::App{
 public:
     al::SpeakerLayout speakerLayout = al::HeadsetSpeakerLayout();
     al::StereoPanner* panner = new al::StereoPanner(speakerLayout);
@@ -19,6 +20,7 @@ public:
     float pos = 0;
 
     declareTestSig();
+    float t = 0;
 
     MyApp()
     {
@@ -28,18 +30,23 @@ public:
         scene->addSource(source);
         listener->compile();
 
+        gam::Domain::master().spu(SR);
+
         setupTestSig();
+
+        initAudio(SR, BLOCK_SIZE, 2, 0);
     }
 
-    void onAudio(gam::AudioIOData& io){
+    void onSound(al::AudioIOData& io) override {
         while(io()){
+
+            pos = sin(t/1000);
             source.pos(pos, 0, 0);
 
-            float s = test_burst();
+            float s = test_sind();
 
-            io.out(0) = io.out(1) = s;
             source.writeSample(s);
-//            scene->render(io);
+            scene->render(io);
         }
     }
 };
