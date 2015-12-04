@@ -12,10 +12,10 @@
 
 
 
-#define setupTestSig()  tmr_sind.period(0.5); \
+#define setupTestSig(sec)  tmr_sind.period(sec); \
                     tmr_sind.phaseMax(); \
                     sind.set(1000, 0.8, 0.04, 0.25); \
-                    tmr_burst.period(0.5);    \
+                    tmr_burst.period(sec);    \
                     tmr_burst.phaseMax();    \
                     burst(2e4,2e3, 0.1)
 
@@ -24,7 +24,5 @@
 
 
 #define test_burst() burst(); if(tmr_burst()) burst.reset()
-
-
 
 #endif
