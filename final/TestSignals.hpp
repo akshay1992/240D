@@ -14,7 +14,7 @@
 
 #define setupTestSig(sec)  tmr_sind.period(sec); \
                     tmr_sind.phaseMax(); \
-                    sind.set(1000, 0.8, 0.04, 0.25); \
+                    sind.set(1000, 0.8, 0.08, 0.25); \
                     tmr_burst.period(sec);    \
                     tmr_burst.phaseMax();    \
                     burst(2e4,2e3, 0.1)
