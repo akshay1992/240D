@@ -73,10 +73,29 @@ private:
                 nchannels = max_nchannels;
     }
 
+    void debug_print()
+    {
+
+        cout << "SpatialEcho" << endl << "-------------------" << endl;
+        cout << "Configured number of channels: " << nchannels << endl;
+        cout << "Timing Jitter: " << timingJitter << endl;
+        cout << "Feedback: " << feedback << endl;
+        cout << "Delay "
+                "times for each channel (s) " << endl;
+        for(int i=0; i<nchannels; i++)
+        {
+            cout << "\t[" << i << "] : " << delay_stages[i]->delayLine->delay();
+            if(i==0)
+                cout << " --> (Dry signal pass-through)";
+
+            cout << endl;
+        }
+
+    }
+
     void configure_delay_lines()
     {
         compute_nchannels();
-        cout << nchannels << endl;
 
         // First channel is a dry pass-through.
         delay_stages.push_back(new DelayStage(delay_length));
@@ -86,10 +105,9 @@ private:
         for(int i=1; i<nchannels; i++)
         {
             delay_stages.push_back(new DelayStage(delay_length + al::rnd::uniformS() * timingJitter * delay_length));
-
-            cout << i << ": " << delay_length << "    " << al::rnd::uniformS() * timingJitter * delay_length << endl;
-
         }
+
+        debug_print();
     }
 
     int nchannels=0; // First channel is always a dry pass-through. There are nchannels-1 delay lines

@@ -16,7 +16,7 @@ public:
     declareTestSig();
     MyApp()
     {
-        echo = new SpatialEcho(0.04, 0.99, 0.5);
+        echo = new SpatialEcho(0.04, 0.3);
 
         sf.format(gam::SoundFile::WAV);
         sf.channels(echo->get_nchannels());
