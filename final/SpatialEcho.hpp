@@ -14,7 +14,8 @@ public:
         :
           delay_length(delay_length),
           feedback(feedback),
-          timingJitter(timing_jitter)
+          timingJitter(timing_jitter),
+          focus(toCartesian(al::Vec3f(5.0, 0, 0)))
     {
         configure_delay_lines();
         current_frame = (float*) calloc(nchannels, sizeof(float));
@@ -31,6 +32,20 @@ public:
         }
 
         return srcs;
+    }
+
+    void set_FocusSpread(al::Vec3f focus_cartesian, float in_spread)
+    {
+        focus = focus_cartesian;
+        spread = in_spread;
+
+        configure_positions();
+    }
+
+    void set_FocusSpread(float x, float y, float z, float spread)
+    {
+        al::Vec3f focus_cartesian(x, y, z);
+        set_FocusSpread(focus_cartesian, spread);
     }
 
     void set_timingJitter(float value)
@@ -53,6 +68,35 @@ public:
         }
         return current_frame;
     }
+
+#ifdef DEBUG_PRINT_POSITION
+    void debug_positions_cartesian()
+    {
+        cout << "Positions: " << endl;
+        for (int i=0; i<nchannels ; i++)
+        {
+            cout << "\t[" << i << "] : " << delay_stages[i]->currentPosition() ;
+            if (i==0)
+                cout << " ---> (focus)" ;
+            cout << endl;
+        }
+        cout << endl;
+    }
+
+    void debug_positions_spherical()
+    {
+        cout << "Positions: " << endl;
+        for (int i=0; i<nchannels ; i++)
+        {
+            cout << "\t[" << i << "] : " << toSpherical(delay_stages[i]->currentPosition()) ;
+            if (i==0)
+                cout << " ---> (focus)" ;
+            cout << endl;
+        }
+        cout << endl;
+    }
+
+#endif
 
 private:
 
@@ -93,6 +137,18 @@ private:
 
     }
 
+    void configure_positions()
+    {
+        //Lock position of dry signal.
+        delay_stages[0]->setBounds(focus, 0.0, true);
+
+        for(int i=1; i<nchannels; i++)
+        {
+            delay_stages[i]->setBounds(focus, spread);
+        }
+
+    }
+
     void configure_delay_lines()
     {
         compute_nchannels();
@@ -107,7 +163,12 @@ private:
             delay_stages.push_back(new DelayStage(delay_length + al::rnd::uniformS() * timingJitter * delay_length));
         }
 
+        configure_positions();
+
         debug_print();
+#ifdef DEBUG_PRINT_POSITION
+        debug_positions_cartesian();
+#endif
     }
 
     int nchannels=0; // First channel is always a dry pass-through. There are nchannels-1 delay lines
@@ -118,6 +179,8 @@ private:
 
     bool configured_delay_lines = false;
     std::vector<DelayStage*> delay_stages;
+    al::Vec3f focus;
+    float spread;
     float delay_length;
     float feedback;
     float timingJitter;

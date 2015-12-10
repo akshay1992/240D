@@ -11,6 +11,7 @@ class PositionField
 {
 public:
         al::rnd::Random<> rng;
+        bool position_lock;
 	float r, r_lower, r_upper, r_range;
         float az, az_lower, az_upper, az_range;
         float el, el_lower, el_upper, el_range;
@@ -33,9 +34,12 @@ public:
 
 	void refreshPosition()
 	{
-            r = r_lower + rng.uniform() * r_range;
-            az = az_lower + rng.uniform() * az_range;
-            el = el_lower + rng.uniform() * el_range;
+            if (!position_lock)
+            {
+                r = r_lower + rng.uniform() * r_range;
+                az = az_lower + rng.uniform() * az_range;
+                el = el_lower + rng.uniform() * el_range;
+            }
 	}
 
         void recalculate_range()
@@ -50,15 +54,24 @@ public:
             return toCartesian(r, az, el);
 	}
 
-        /// Sets the spread of bounds (0 - 1) from the focal point (given in cartesian).
-        void setBounds(al::Vec3f focus, float spread)
+        /// Sets the spread of bounds (0 to 1) from the focal point (given in cartesian).
+        void setBounds(al::Vec3f focus, float spread, bool lock_position = false)
         {
+            position_lock = lock_position;
             al::Vec3f focus_polar = toSpherical(focus);
+
+            cout << "FOCUS POLAR " << focus_polar << endl;
+
+            r = focus_polar.x;
+            az = focus_polar.y;
+            el = focus_polar.z;
 
             float az_spread, el_spread;
 
             az_spread = spread * 180;
             el_spread = spread * 180;
+
+            cout  << "SPREADKS" << az_spread << " " << el_spread << endl;
 
             set_upperBound( focus_polar.x , focus_polar.y + az_spread, focus_polar.z + el_spread);
             set_lowerBound( focus_polar.x , focus_polar.y - az_spread, focus_polar.z - el_spread);

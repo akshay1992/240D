@@ -15,7 +15,6 @@ static al::Vec3f toSpherical(al::Vec3f in)
     out.y = atan2( in.y, in.x );
     out.z = atan2( in.z, sqrt(in.x*in.x+in.y*in.y) );
 
-
     out.y *= 180 / M_PI;
     out.z *= 180 / M_PI;
 
@@ -38,7 +37,7 @@ static al::Vec3f toSpherical(float in_x, float in_y, float in_z)
 }
 
 
-//! returns [Dist, azimuth, elevation]
+//! returns [x, y, z]
 static al::Vec3f toCartesian(al::Vec3f in)
 {
     al::Vec3f out(0,0,0);
@@ -50,6 +49,7 @@ static al::Vec3f toCartesian(al::Vec3f in)
     return out;
 }
 
+//! returns [x, y, z]
 static al::Vec3f toCartesian(float in_x, float in_y, float in_z)
 {
     al::Vec3f out(0,0,0);

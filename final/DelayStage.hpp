@@ -13,15 +13,15 @@ class DelayStage : public PositionField, public al::SoundSource
 public:
     gam::Gate<> gate;
     gam::Delay<float>* delayLine;
+    bool prev_gateVal;
 
     bool bypass = false;
 
     DelayStage(float delay_length) :
         PositionField(),
-        gate()
+        gate(0.02)
     {
         delayLine = new gam::Delay<float>(delay_length);
-
     }
 
     float tick(float in)
@@ -34,17 +34,17 @@ public:
         {
             float delayed_val = (*delayLine)(in);
 
-            if (gate.done())
+            if (!gate(delayed_val) && prev_gateVal)
             {
-                refreshPosition();
+                refreshPosition();  // Position lock found within refreshPosition
             }
+            prev_gateVal = gate(delayed_val);
 
             al::Vec3f p = currentPosition();
             pos(p.x, p.y, p.z);
 
             float out_sample = delayed_val * gate(delayed_val);
             writeSample(out_sample);
-
             return (out_sample);
         }
     }

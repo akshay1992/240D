@@ -1,8 +1,10 @@
 #include "allocore/al_Allocore.hpp"
 #include "Gamma/SoundFile.h"
 
-#include "TestSignals.hpp"
+#define DEBUG_PRINT_POSITION
+
 #include "SpatialEcho.hpp"
+#include "TestSignals.hpp"
 
 gam::SoundFile sf("out.wav");
 
@@ -18,6 +20,11 @@ public:
     {
         echo = new SpatialEcho(0.04, 0.3);
 
+        // Focus and spread
+        float spread = 0.5;
+        al::Vec3f focus(5, 0, 0);
+        echo->set_FocusSpread(focus, spread);
+
         sf.format(gam::SoundFile::WAV);
         sf.channels(echo->get_nchannels());
         sf.encoding(gam::SoundFile::PCM_16);
@@ -29,8 +36,6 @@ public:
         setupTestSig(1);
         initAudio(44100, 128, 2, 0);
 
-        al::Vec3f focus(toCartesian(1, 60, 0));
-        setBounds(focus, 0.01);
 
     }
 
@@ -38,7 +43,13 @@ public:
 
         while(io()){
 
-            float s = test_sind();
+            if(tmr_sind())
+            {
+                sind.reset();
+                echo->debug_positions_cartesian();
+            }
+            float s = sind();
+
 
             float * y = echo->tick(s);
 
